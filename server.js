@@ -402,8 +402,8 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Check-in date cannot be in the past' });
     }
     
-    if (checkOutDate <= checkInDate) {
-      return res.status(400).json({ error: 'Check-out date must be after check-in date' });
+    if (checkOutDate < checkInDate) {
+      return res.status(400).json({ error: 'Check-out date cannot be before check-in date' });
     }
     
     // Check for conflicts - bookings overlap if:
@@ -414,7 +414,7 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
       .eq('room_type', room_type)
       .in('status', ['confirmed', 'pending'])
       .lt('check_in', check_out)
-      .gt('check_out', check_in);
+      .gte('check_out', check_in);
     
     if (conflicts && conflicts.length > 0) {
       return res.status(400).json({ error: 'Room is already booked for these dates' });
@@ -667,11 +667,12 @@ app.put('/api/bookings/:id', requireAuth, async (req, res) => {
         const checkInDate = new Date(finalCheckIn);
         const checkOutDate = new Date(finalCheckOut);
         
-        if (checkOutDate <= checkInDate) {
-          return res.status(400).json({ error: 'Check-out date must be after check-in date' });
+        if (checkOutDate < checkInDate) {
+          return res.status(400).json({ error: 'Check-out date cannot be before check-in date' });
         }
         
         // Check for conflicts (excluding current booking)
+        // Updated to handle same-day bookings (check_out can equal check_in)
         const { data: conflicts } = await supabase
           .from('bookings')
           .select('*')
@@ -679,7 +680,7 @@ app.put('/api/bookings/:id', requireAuth, async (req, res) => {
           .in('status', ['confirmed', 'pending'])
           .neq('id', req.params.id)
           .lt('check_in', finalCheckOut)
-          .gt('check_out', finalCheckIn);
+          .gte('check_out', finalCheckIn);
         
         if (conflicts && conflicts.length > 0) {
           return res.status(400).json({ error: 'Room is already booked for these dates' });
