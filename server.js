@@ -639,14 +639,40 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
 // Update booking
 app.put('/api/bookings/:id', requireAuth, async (req, res) => {
   try {
-    const { guest_name, guest_email, guest_phone, room_type, check_in, check_out, status, guest_count } = req.body;
+    const { guest_name, guest_email, guest_phone, room_type, check_in, check_out, status, guest_count, adults, kids, visit_time, cottage, booking_time, entrance_fee, cottage_fee } = req.body;
     
-    // Calculate extra guest charge if guest_count is updated
-    if (guest_count !== undefined) {
+    // Calculate extra guest charge if guest_count is updated or if adults/kids changed
+    let finalGuestCount = guest_count;
+    if (adults !== undefined || kids !== undefined) {
+      finalGuestCount = (adults || 0) + (kids || 0);
+    } else if (guest_count !== undefined) {
+      finalGuestCount = guest_count;
+    }
+    
+    if (finalGuestCount !== undefined) {
       const baseCapacity = 4;
-      const additionalGuests = Math.max(0, guest_count - baseCapacity);
+      const additionalGuests = Math.max(0, finalGuestCount - baseCapacity);
       const extraGuestCharge = additionalGuests * 100;
       req.body.extra_guest_charge = extraGuestCharge;
+      req.body.guest_count = finalGuestCount;
+    }
+    
+    // Recalculate entrance fees if visit_time, adults, or kids are updated
+    if (visit_time !== undefined && (adults !== undefined || kids !== undefined)) {
+      const adultPrice = visit_time === 'morning' ? 70 : visit_time === 'night' ? 120 : 0;
+      const kidPrice = visit_time === 'morning' ? 60 : visit_time === 'night' ? 100 : 0;
+      const calculatedEntranceFee = ((adults || 0) * adultPrice) + ((kids || 0) * kidPrice);
+      req.body.entrance_fee = calculatedEntranceFee;
+    }
+    
+    // Recalculate cottage fee if cottage is updated
+    if (cottage !== undefined) {
+      const cottagePrices = {
+        'tropahan': 300,
+        'barkads': 400,
+        'family': 500
+      };
+      req.body.cottage_fee = cottage ? (cottagePrices[cottage] || 0) : 0;
     }
     
     // If dates or room_type are being updated, check for conflicts

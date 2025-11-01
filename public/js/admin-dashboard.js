@@ -163,6 +163,17 @@ function setupEventListeners() {
     
     // Add booking button
     document.getElementById('addBookingBtn')?.addEventListener('click', () => {
+        // Reset form to create mode
+        const form = document.getElementById('addBookingForm');
+        const modal = document.getElementById('bookingModal');
+        const title = modal.querySelector('h3');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        form.reset();
+        delete form.dataset.bookingId;
+        title.textContent = 'Add New Booking';
+        submitBtn.textContent = 'Create Booking';
+        
         document.getElementById('bookingModal').style.display = 'block';
     });
     
@@ -341,6 +352,9 @@ function renderBookings(filteredBookings = bookings) {
                 <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
                 <td>
                     <button class="btn btn-small btn-secondary" onclick="viewBooking('${booking.id}')">View</button>
+                    <button class="btn btn-small btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
+                        <span style="font-size: 14px;">✏️</span> Edit
+                    </button>
                     <button class="btn btn-small btn-success" onclick="approveBooking('${booking.id}')">Approve</button>
                     <button class="btn btn-small btn-danger" onclick="deleteBooking('${booking.id}')">Delete</button>
                 </td>
@@ -422,6 +436,55 @@ function updateAvailableRooms() {
     }
 }
 
+// Edit booking
+async function editBooking(bookingId) {
+    try {
+        const response = await fetch(`/api/bookings/${bookingId}`);
+        if (!response.ok) {
+            alert('Failed to load booking details');
+            return;
+        }
+        
+        const data = await response.json();
+        const booking = data.booking;
+        
+        // Populate form with booking data
+        document.querySelector('input[name="guest_name"]').value = booking.guest_name || '';
+        document.querySelector('input[name="guest_email"]').value = booking.guest_email || '';
+        document.querySelector('input[name="guest_phone"]').value = booking.guest_phone || '';
+        document.querySelector('input[name="adults"]').value = booking.adults || 0;
+        document.querySelector('input[name="kids"]').value = booking.kids || 0;
+        document.querySelector('select[name="visit_time"]').value = booking.visit_time || '';
+        document.querySelector('select[name="room_type"]').value = booking.room_type || '';
+        document.querySelector('select[name="cottage"]').value = booking.cottage || '';
+        document.querySelector('input[name="check_in"]').value = booking.check_in ? booking.check_in.split('T')[0] : '';
+        document.querySelector('input[name="check_out"]').value = booking.check_out ? booking.check_out.split('T')[0] : '';
+        document.querySelector('input[name="booking_time"]').value = booking.booking_time || '';
+        document.querySelector('select[name="status"]').value = booking.status || 'pending';
+        
+        // Update modal title and form
+        const modal = document.getElementById('bookingModal');
+        const form = document.getElementById('addBookingForm');
+        const title = modal.querySelector('h3');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        title.textContent = 'Edit Booking';
+        submitBtn.textContent = 'Update Booking';
+        
+        // Store booking ID for update
+        form.dataset.bookingId = bookingId;
+        
+        // Update available rooms
+        updateAvailableRooms();
+        
+        // Show modal
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading booking:', error);
+        alert('Failed to load booking details');
+    }
+}
+
 // Handle add booking
 async function handleAddBooking(e) {
     e.preventDefault();
@@ -469,23 +532,39 @@ async function handleAddBooking(e) {
     };
     
     try {
-        const response = await fetch('/api/bookings', {
-            method: 'POST',
+        const bookingId = e.target.dataset.bookingId;
+        const url = bookingId ? `/api/bookings/${bookingId}` : '/api/bookings';
+        const method = bookingId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookingData)
         });
         
         if (!response.ok) {
             const error = await response.json();
-            alert(error.error || 'Failed to create booking');
+            alert(error.error || `Failed to ${bookingId ? 'update' : 'create'} booking`);
             return;
         }
         
+        // Reset form and modal
         document.getElementById('bookingModal').style.display = 'none';
-        document.getElementById('addBookingForm').reset();
+        const form = document.getElementById('addBookingForm');
+        form.reset();
+        delete form.dataset.bookingId;
+        
+        // Reset modal title and button
+        const modal = document.getElementById('bookingModal');
+        const title = modal.querySelector('h3');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        title.textContent = 'Add New Booking';
+        submitBtn.textContent = 'Create Booking';
+        
         loadDashboardData();
+        alert(`Booking ${bookingId ? 'updated' : 'created'} successfully!`);
     } catch (error) {
-        console.error('Error creating booking:', error);
+        console.error(`Error ${e.target.dataset.bookingId ? 'updating' : 'creating'} booking:`, error);
         alert('An error occurred');
     }
 }
