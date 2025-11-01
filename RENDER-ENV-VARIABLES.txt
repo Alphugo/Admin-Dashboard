@@ -1,0 +1,77 @@
+========================================
+RENDER ENVIRONMENT VARIABLES CHECKLIST
+========================================
+
+Copy these variables to Render Dashboard → Environment Tab
+
+========================================
+REQUIRED VARIABLES:
+========================================
+
+1. SUPABASE_URL
+   Value: (Copy from your .env file - starts with https://)
+   Example: https://gjaskifzrqjcesdnnqpa.supabase.co
+
+2. SUPABASE_KEY
+   Value: (Copy from your .env file - long JWT token)
+   Example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+3. SESSION_SECRET
+   Value: (Use a strong random string - can reuse from .env or generate new)
+   Example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (or any random string)
+
+4. SMTP_HOST
+   Value: smtp.gmail.com
+
+5. SMTP_PORT
+   Value: 587
+
+6. SMTP_USER
+   Value: (Your Gmail address)
+   Example: welcometokinaresort@gmail.com
+
+7. SMTP_PASSWORD
+   Value: (Your Gmail App Password - 16 characters)
+   Example: ohnf dfvt clbq gjqi (remove spaces when pasting)
+
+8. NODE_ENV
+   Value: production
+
+9. PORT
+   Value: 10000
+   (Note: Render usually sets this automatically, but include it just in case)
+
+========================================
+HOW TO ADD IN RENDER:
+========================================
+
+1. Go to your Web Service in Render Dashboard
+2. Click on "Environment" tab (left sidebar)
+3. Click "Add Environment Variable"
+4. Enter the Key name (e.g., SUPABASE_URL)
+5. Enter the Value
+6. Click "Save"
+7. Repeat for each variable above
+8. Render will auto-deploy after you save
+
+========================================
+IMPORTANT NOTES:
+========================================
+
+⚠️  When copying SMTP_PASSWORD, remove any spaces
+⚠️  Keep SESSION_SECRET secret - never commit to GitHub
+⚠️  PORT is usually auto-set by Render, but include it anyway
+⚠️  NODE_ENV should be "production" for deployed apps
+
+========================================
+VERIFY YOUR VALUES:
+========================================
+
+After deployment, check the logs to ensure:
+✅ No "Missing environment variable" errors
+✅ Server starts successfully
+✅ Can connect to Supabase
+✅ Can send emails (if configured)
+
+========================================
+
