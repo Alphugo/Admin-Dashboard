@@ -19,6 +19,99 @@ window.addEventListener('beforeunload', () => {
     stopAuditLogsRealTime();
 });
 
+// Show logout confirmation dialog
+function showLogoutConfirmation() {
+    return new Promise((resolve) => {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        // Create confirmation box
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        `;
+        
+        modal.innerHTML = `
+            <h2 style="margin: 0 0 15px 0; color: #333;">Confirm Logout</h2>
+            <p style="margin: 0 0 25px 0; color: #666;">Are you sure you want to log out?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="confirmLogoutYes" style="
+                    padding: 10px 30px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    font-weight: bold;
+                ">Yes, Logout</button>
+                <button id="confirmLogoutNo" style="
+                    padding: 10px 30px;
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    font-weight: bold;
+                ">Cancel</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // Handle Yes button
+        document.getElementById('confirmLogoutYes').addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        });
+        
+        // Handle No button
+        document.getElementById('confirmLogoutNo').addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+        });
+        
+        // Handle Escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                document.body.removeChild(overlay);
+                document.removeEventListener('keydown', handleEscape);
+                resolve(false);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        
+        // Handle click outside modal
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+                document.removeEventListener('keydown', handleEscape);
+                resolve(false);
+            }
+        });
+    });
+}
+
 // Check authentication
 async function checkAuth() {
     try {
@@ -54,10 +147,18 @@ function setupEventListeners() {
         });
     });
     
-    // Logout
+    // Logout with confirmation
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await fetch('/api/logout', { method: 'POST' });
-        window.location.href = '/login.html';
+        const confirmed = await showLogoutConfirmation();
+        if (confirmed) {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('An error occurred during logout. Please try again.');
+            }
+        }
     });
     
     // Add booking button
