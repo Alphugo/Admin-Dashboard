@@ -271,15 +271,11 @@ function renderAssignments(bookingsToRender = null) {
             <td>
                 <button class="btn btn-small btn-secondary" onclick="viewBookingDetails('${booking.id}')">View</button>
                 ${booking.status === 'pending' ? `
-                    <button class="btn btn-small btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
-                        <span style="font-size: 14px;">✏️</span> Edit
-                    </button>
                     <button class="btn btn-small btn-success" onclick="confirmBooking('${booking.id}')">Confirm</button>
-                ` : `
-                    <button class="btn btn-small btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
-                        <span style="font-size: 14px;">✏️</span> Edit
-                    </button>
-                `}
+                ` : ''}
+                <button class="btn btn-small btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
+                    <span style="font-size: 14px;">✏️</span> Edit
+                </button>
             </td>
         </tr>
     `).join('');
