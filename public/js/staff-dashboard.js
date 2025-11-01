@@ -274,7 +274,7 @@ function renderAssignments(bookingsToRender = null) {
                     <button class="btn btn-small btn-success" onclick="confirmBooking('${booking.id}')">Confirm</button>
                 ` : ''}
                 <button class="btn btn-small btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
-                    <span style="font-size: 14px;">✏️</span> Edit
+                    <span style="font-size: 14px;"></span> Edit
                 </button>
             </td>
         </tr>

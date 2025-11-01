@@ -353,10 +353,10 @@ function renderBookings(filteredBookings = bookings) {
                 <td>
                     <button class="btn btn-small btn-secondary" onclick="viewBooking('${booking.id}')">View</button>
                     <button class="btn btn-small btn-success" onclick="approveBooking('${booking.id}')">Approve</button>
-                    <button class="btn btn-small btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
+                    <button class="btn  btn-warning" onclick="editBooking('${booking.id}')" title="Edit Booking">
                         <span style="font-size: 14px;">✏️</span> Edit
                     </button>
-                    <button class="btn btn-small btn-danger" onclick="deleteBooking('${booking.id}')">Delete</button>
+                    <button class="btn  btn-danger" onclick="deleteBooking('${booking.id}')">Delete</button>
                 </td>
             </tr>
         `;
