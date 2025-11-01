@@ -448,6 +448,8 @@ async function handleAddBooking(e) {
     // Calculate total guest count (adults + kids)
     const guestCount = adults + kids;
     
+    const bookingTime = formData.get('booking_time');
+    
     const bookingData = {
         guest_name: formData.get('guest_name'),
         guest_email: formData.get('guest_email'),
@@ -457,13 +459,12 @@ async function handleAddBooking(e) {
         visit_time: visitTime,
         cottage: cottage || null,
         entrance_fee: entranceFee,
+        booking_time: bookingTime,
         cottage_fee: cottageFee,
         guest_count: guestCount,
         room_type: formData.get('room_type'),
         check_in: formData.get('check_in'),
         check_out: formData.get('check_out'),
-        start_time: formData.get('start_time'),
-        end_time: formData.get('end_time'),
         status: formData.get('status')
     };
     
@@ -538,8 +539,7 @@ function viewBooking(bookingId) {
     const cottageFee = booking.cottage_fee || 0;
     const cottage = booking.cottage || null;
     const visitTime = booking.visit_time || null;
-    const startTime = booking.start_time || null;
-    const endTime = booking.end_time || null;
+    const bookingTime = booking.booking_time || null;
     
     let totalCost = entranceFee + cottageFee;
     if (booking.extra_guest_charge) totalCost += booking.extra_guest_charge;
@@ -559,7 +559,7 @@ function viewBooking(bookingId) {
             ${visitTime ? `<p>Visit Time: ${visitTime.charAt(0).toUpperCase() + visitTime.slice(1)}</p>` : ''}
             <p>Check-in: ${formatDate(booking.check_in)}</p>
             <p>Check-out: ${formatDate(booking.check_out)}</p>
-            ${startTime && endTime ? `<p>Time: ${startTime} - ${endTime}</p>` : ''}
+            ${bookingTime ? `<p>Booking Time: ${bookingTime}</p>` : ''}
             ${cottage ? `<p>Cottage: ${cottage.charAt(0).toUpperCase() + cottage.slice(1)} - ₱${cottageFee}</p>` : ''}
             <p>Status: <span class="status-badge status-${booking.status}">${booking.status}</span></p>
         </div>

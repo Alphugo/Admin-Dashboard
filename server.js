@@ -385,7 +385,7 @@ app.get('/api/bookings/:id', requireAuth, async (req, res) => {
 // Create new booking
 app.post('/api/bookings', requireAuth, async (req, res) => {
   try {
-    const { guest_name, guest_email, guest_phone, room_type, check_in, check_out, start_time, end_time, status = 'pending', guest_count = 1, adults, kids, visit_time, cottage, entrance_fee, cottage_fee } = req.body;
+    const { guest_name, guest_email, guest_phone, room_type, check_in, check_out, booking_time, status = 'pending', guest_count = 1, adults, kids, visit_time, cottage, entrance_fee, cottage_fee } = req.body;
     
     // Calculate extra guest charge (₱100 per guest over 4)
     const baseCapacity = 4;
@@ -430,8 +430,7 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
         room_type,
         check_in,
         check_out,
-        start_time: start_time || null,
-        end_time: end_time || null,
+        booking_time: booking_time || null,
         status,
         guest_count: guest_count || 1,
         extra_guest_charge: extraGuestCharge || 0,
@@ -568,10 +567,10 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
                   <span class="detail-label">Check-out:</span>
                   <span class="detail-value">${new Date(check_out).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
-                ${start_time && end_time ? `
+                ${booking_time ? `
                 <div class="detail-row">
-                  <span class="detail-label">Time:</span>
-                  <span class="detail-value">${start_time} - ${end_time}</span>
+                  <span class="detail-label">Booking Time:</span>
+                  <span class="detail-value">${booking_time}</span>
                 </div>
                 ` : ''}
               </div>
@@ -1309,7 +1308,7 @@ app.post('/api/payments/confirm', async (req, res) => {
             <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
             <p>Check-in: ${new Date(booking.check_in).toLocaleDateString()}</p>
             <p>Check-out: ${new Date(booking.check_out).toLocaleDateString()}</p>
-            ${booking.start_time && booking.end_time ? `<p>Time: ${booking.start_time} - ${booking.end_time}</p>` : ''}
+            ${booking.booking_time ? `<p>Booking Time: ${booking.booking_time}</p>` : ''}
             ${booking.visit_time ? `<p>Visit Time: ${booking.visit_time}</p>` : ''}
             <p style="margin-top:20px;">Thank you for choosing Kina Resort!</p>
           </div>

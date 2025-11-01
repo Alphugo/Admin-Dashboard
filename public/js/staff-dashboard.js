@@ -352,6 +352,7 @@ function viewBookingDetails(bookingId) {
             <p>Room Type: ${booking.room_type}</p>
             <p>Check-in: ${formatDate(booking.check_in)}</p>
             <p>Check-out: ${formatDate(booking.check_out)}</p>
+            ${booking.booking_time ? `<p>Booking Time: ${booking.booking_time}</p>` : ''}
             <p>Status: ${booking.status}</p>
         </div>
     `;
@@ -524,8 +525,7 @@ async function handleAddBooking(e) {
         room_type: formData.get('room_type'),
         check_in: formData.get('check_in'),
         check_out: formData.get('check_out'),
-        start_time: formData.get('start_time'),
-        end_time: formData.get('end_time'),
+        booking_time: formData.get('booking_time'),
         status: formData.get('status')
     };
     
